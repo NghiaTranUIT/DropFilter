@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>IDESourceControlProjectFavoriteDictionaryKey</key>
+	<false/>
+	<key>IDESourceControlProjectIdentifier</key>
+	<string>2041B0E3-B7AA-49BD-A474-099211A1F144</string>
+	<key>IDESourceControlProjectName</key>
+	<string>DropFilter</string>
+	<key>IDESourceControlProjectOriginsDictionary</key>
+	<dict>
+		<key>00C5DFA842FCA135B1973836ABAB5AD17B66B68B</key>
+		<string>github.com:NghiaTranUIT/DropFilter.git</string>
+	</dict>
+	<key>IDESourceControlProjectPath</key>
+	<string>DropFilter.xcworkspace</string>
+	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
+	<dict>
+		<key>00C5DFA842FCA135B1973836ABAB5AD17B66B68B</key>
+		<string>..</string>
+	</dict>
+	<key>IDESourceControlProjectURL</key>
+	<string>github.com:NghiaTranUIT/DropFilter.git</string>
+	<key>IDESourceControlProjectVersion</key>
+	<integer>111</integer>
+	<key>IDESourceControlProjectWCCIdentifier</key>
+	<string>00C5DFA842FCA135B1973836ABAB5AD17B66B68B</string>
+	<key>IDESourceControlProjectWCConfigurations</key>
+	<array>
+		<dict>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.git</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>00C5DFA842FCA135B1973836ABAB5AD17B66B68B</string>
+			<key>IDESourceControlWCCName</key>
+			<string>DropFilter</string>
+		</dict>
+	</array>
+</dict>
+</plist>
