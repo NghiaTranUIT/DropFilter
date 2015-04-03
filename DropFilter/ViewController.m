@@ -13,13 +13,17 @@
 
 // GPUImage View
 @property (weak, nonatomic) IBOutlet GPUImageView *topCameraImageView;
+@property (weak, nonatomic) IBOutlet GPUImageView *bottomCameraView;
 
 // Still Camera
 @property (strong, nonatomic) GPUImageStillCamera *stillCamera;
 
 // Filter
 @property (strong, nonatomic) GPUImageGrayscaleFilter *grayscaleFilter;
+@property (strong, nonatomic) GPUImageAmatorkaFilter *amatorkaFilter;
 
+// Mask
+@property (strong, nonatomic) CALayer *maskLayer;
 
 @end
 
@@ -37,6 +41,8 @@
     [self configureFilter];
     
     [self configureImageView];
+    
+    [self initMask];
 }
 
 - (void)didReceiveMemoryWarning
@@ -76,11 +82,33 @@
 {
     // Gray filter
     _grayscaleFilter = [[GPUImageGrayscaleFilter alloc] init];
+    
+    // Amatorka filter
+    _amatorkaFilter = [[GPUImageAmatorkaFilter alloc] init];
 }
 -(void) configureImageView
 {
     // Top
     [_stillCamera addTarget:_grayscaleFilter];
     [_grayscaleFilter addTarget:_topCameraImageView];
+    
+    // Botom
+    [_stillCamera addTarget:_amatorkaFilter];
+    [_amatorkaFilter addTarget:_bottomCameraView];
+}
+-(void) initMask
+{
+    if (!_maskLayer)
+    {
+        _maskLayer = [CALayer layer];
+        _maskLayer.frame = CGRectMake(0, 0, self.view.bounds.size.width / 2, self.view.bounds.size.height);
+        _maskLayer.backgroundColor = [UIColor whiteColor].CGColor;
+        
+        // Add
+        _topCameraImageView.layer.mask = _maskLayer;
+        _topCameraImageView.layer.masksToBounds = YES;
+    }
+    
+
 }
 @end
