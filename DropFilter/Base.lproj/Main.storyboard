@@ -15,9 +15,24 @@
                     <view key="view" contentMode="scaleToFill" id="kh9-bI-dsS">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                        <subviews>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="cWE-d5-ZND" userLabel="Top Camera View" customClass="GPUImageView">
+                                <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                            </view>
+                        </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstItem="2fi-mo-0CV" firstAttribute="top" secondItem="cWE-d5-ZND" secondAttribute="bottom" id="65W-n0-pZJ"/>
+                            <constraint firstItem="cWE-d5-ZND" firstAttribute="top" secondItem="kh9-bI-dsS" secondAttribute="top" id="6ue-tG-HfR"/>
+                            <constraint firstAttribute="trailing" secondItem="cWE-d5-ZND" secondAttribute="trailing" id="BfO-78-BJZ"/>
+                            <constraint firstItem="cWE-d5-ZND" firstAttribute="leading" secondItem="kh9-bI-dsS" secondAttribute="leading" id="d1l-0O-wJX"/>
+                        </constraints>
                     </view>
                     <simulatedScreenMetrics key="simulatedDestinationMetrics" type="retina47"/>
+                    <connections>
+                        <outlet property="topCameraImageView" destination="cWE-d5-ZND" id="wTI-cc-2kS"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="x5A-6p-PRh" sceneMemberID="firstResponder"/>
             </objects>
