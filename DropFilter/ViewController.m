@@ -11,7 +11,10 @@
 #import "FeBasicAnimationBlock.h"
 
 @interface ViewController ()
-
+{
+    CGFloat alphaAngel;
+    
+}
 // GPUImage View
 @property (weak, nonatomic) IBOutlet GPUImageView *topCameraImageView;
 @property (weak, nonatomic) IBOutlet GPUImageView *bottomCameraView;
@@ -28,6 +31,10 @@
 
 // Gesture
 @property (strong, nonatomic) UIPanGestureRecognizer *panGesture;
+
+// Label
+@property (strong, nonatomic) UILabel *grayscaleLbl;
+@property (strong, nonatomic) UILabel *amatorkarLbl;
 
 @end
 
@@ -47,6 +54,8 @@
     [self configureImageView];
     
     [self initMask];
+    
+    [self initLabels];
     
     [self initGesture];
 }
@@ -76,11 +85,79 @@
 #pragma mark - Init
 -(void) initCommon
 {
+    alphaAngel = atan(self.view.bounds.size.height / self.view.bounds.size.width);
+}
+-(void) initLabels
+{
+    if (!_grayscaleLbl)
+    {
+        _grayscaleLbl = [[UILabel alloc] init];
+        _grayscaleLbl.text = @"Oldboy";
+        _grayscaleLbl.font = [UIFont fontWithName:@"HelveticaNeue-Light" size:60];
+        _grayscaleLbl.textColor = [UIColor whiteColor];
+        _grayscaleLbl.backgroundColor = [UIColor clearColor];
+        _grayscaleLbl.textAlignment = NSTextAlignmentCenter;
+        
+        [_grayscaleLbl sizeToFit];
+    }
+    if (!_amatorkarLbl)
+    {
+        _amatorkarLbl = [[UILabel alloc] init];
+        _amatorkarLbl.text = @"Retro";
+        _amatorkarLbl.font = [UIFont fontWithName:@"HelveticaNeue-Light" size:60];
+        _amatorkarLbl.textColor = [UIColor whiteColor];
+        _amatorkarLbl.backgroundColor = [UIColor clearColor];
+        _amatorkarLbl.textAlignment = NSTextAlignmentCenter;
+        
+        [_amatorkarLbl sizeToFit];
+    }
     
+    _grayscaleLbl.alpha = 0;
+    _amatorkarLbl.alpha = 0;
+    
+    [self.view addSubview:_grayscaleLbl];
+    [self.view addSubview:_amatorkarLbl];
+}
+-(void) setLabelsWithCenter:(CGPoint) center
+{
+    //NSLog(@"center = %@",NSStringFromCGPoint(center));
+    
+    _grayscaleLbl.center = center;
+    _amatorkarLbl.center = center;
+    
+    // Rotate
+    CATransform3D t1 = CATransform3DIdentity;
+    t1 = CATransform3DTranslate(t1, 40, 0, 0);
+    t1 = CATransform3DRotate(t1, alphaAngel, 0, 0, 1);
+    
+    CATransform3D t2 = CATransform3DIdentity;
+    t2 = CATransform3DTranslate(t2, -40, 0, 0);
+    t2 = CATransform3DRotate(t2, alphaAngel, 0, 0, 1);
+    
+    _amatorkarLbl.layer.transform = t1;
+    _grayscaleLbl.layer.transform = t2;
+    
+    if (center.x > self.view.bounds.size.width / 2)
+    {
+        _grayscaleLbl.alpha = 1;
+        
+        CGFloat GA = _maskLayer.transform.m41 - self.view.bounds.size.width;
+        _amatorkarLbl.alpha = 1 - (GA / self.view.bounds.size.width);
+        
+    }
+    else
+    {
+        _amatorkarLbl.alpha = 1;
+        
+        CGFloat GA = _maskLayer.transform.m41 - self.view.bounds.size.width;
+        GA = fabs(GA);
+        _grayscaleLbl.alpha = 1 - (GA / self.view.bounds.size.width);
+    }
 }
 -(void) initGesture
 {
     _panGesture = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(handlePanGesture:)];
+    _panGesture.maximumNumberOfTouches = 1;
     [self.view addGestureRecognizer:_panGesture];
     
     self.topCameraImageView.userInteractionEnabled = YES;
@@ -97,7 +174,14 @@
         {
             // Translate maskLayer
             // We should disable Implecit Animation when assign directly to property of layer
-            [self setPositionWithoutImplicitAnimationAtTransfrom:CATransform3DMakeTranslation(location.x * 2, 0, 0)];
+            CGFloat percent = location.x / self.view.bounds.size.width;
+            
+            [self setPositionWithoutImplicitAnimationAtTransfrom:CATransform3DMakeTranslation (self.view.bounds.size.width * 2 * percent, 0, 0)];
+            
+            // Translate lable
+            CGPoint center = [self centerPointerDependTransform:_maskLayer.transform];
+            
+            [self setLabelsWithCenter:center];
             
             break;
         }
@@ -118,13 +202,54 @@
                 // Animate masklayer to left edge
                 [self animationMaskLayerToTransform:CATransform3DMakeTranslation( 0, 0, 0)];
             }
+            
+            [UIView animateWithDuration:0.3f delay:0 options:UIViewAnimationOptionCurveEaseOut animations:^{
+                _amatorkarLbl.alpha = 0;
+                _grayscaleLbl.alpha = 0;
+            } completion:nil];
             break;
         }
         default:
             break;
     }
 }
-
+-(CGPoint) centerPointerDependTransform:(CATransform3D) transform
+{
+    // Translate lable
+    if (transform.m41 > self.view.bounds.size.width)
+    {
+        CGFloat width = self.view.bounds.size.width;
+        
+        CGFloat GA = transform.m41 - width;
+        CGFloat AC = width - GA;
+        CGFloat AB = AC / cos(alphaAngel);
+        
+        CGFloat AO = AB / 2.0f;
+        CGFloat y = sin(alphaAngel) * AO;
+        CGFloat x = GA + cos(alphaAngel) * AO;
+    
+        return CGPointMake(x, y);
+    }
+    else
+    {
+        CGFloat width = self.view.bounds.size.width;
+        CGFloat height = self.view.bounds.size.height;
+        
+        CGFloat DB =  transform.m41;
+        CGFloat belta = M_PI / 2 - alphaAngel;
+        
+        CGFloat AB = DB / sin(belta);
+        
+        CGFloat AO = AB / 2.0f;
+        CGFloat x = sin(belta) * AO;
+        CGFloat y = (height - cos(belta) * AB) + cos(belta) * AO;
+        
+        NSLog(@"DB = %.2f",DB);
+        
+        return CGPointMake(x, y);
+    }
+    return CGPointZero;
+}
 -(void) animationMaskLayerToTransform:(CATransform3D) finalTransform
 {
     CABasicAnimation *transalteAnimation = [CABasicAnimation animationWithKeyPath:@"transform"];
