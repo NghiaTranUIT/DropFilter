@@ -8,6 +8,7 @@
 
 #import "ViewController.h"
 #import <GPUImage.h>
+#import "FeBasicAnimationBlock.h"
 
 @interface ViewController ()
 
@@ -24,6 +25,9 @@
 
 // Mask
 @property (strong, nonatomic) CAShapeLayer *maskLayer;
+
+// Gesture
+@property (strong, nonatomic) UIPanGestureRecognizer *panGesture;
 
 @end
 
@@ -43,6 +47,8 @@
     [self configureImageView];
     
     [self initMask];
+    
+    [self initGesture];
 }
 
 - (void)didReceiveMemoryWarning
@@ -71,6 +77,94 @@
 -(void) initCommon
 {
     
+}
+-(void) initGesture
+{
+    _panGesture = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(handlePanGesture:)];
+    [self.view addGestureRecognizer:_panGesture];
+    
+    self.topCameraImageView.userInteractionEnabled = YES;
+    self.bottomCameraView.userInteractionEnabled = YES;
+}
+-(void) handlePanGesture:(UIPanGestureRecognizer *) sender
+{
+    CGPoint location = [sender locationInView:self.view];
+    
+    switch (sender.state)
+    {
+        case UIGestureRecognizerStateBegan:
+        case UIGestureRecognizerStateChanged:
+        {
+            [self setPositionWithoutImplicitAnimationAtTransfrom:CATransform3DMakeTranslation(location.x * 2, 0, 0)];
+            
+            break;
+        }
+        case UIGestureRecognizerStateCancelled:
+        case UIGestureRecognizerStateFailed:
+        case UIGestureRecognizerStateEnded:
+        {
+            CATransform3D transfrom = _maskLayer.transform;
+            if (transfrom.m41 > self.view.bounds.size.width)
+            {
+                [self animationMaskLayerToTransform:CATransform3DMakeTranslation(self.view.bounds.size.width * 2, 0, 0)];
+            }
+            else
+            {
+                [self animationMaskLayerToTransform:CATransform3DMakeTranslation( 0, 0, 0)];
+            }
+            break;
+        }
+        default:
+            break;
+    }
+}
+
+-(void) animationMaskLayerToTransform:(CATransform3D) finalTransform
+{
+    CABasicAnimation *transalteAnimation = [CABasicAnimation animationWithKeyPath:@"transform"];
+    transalteAnimation.toValue = (id)[NSValue valueWithCATransform3D:finalTransform];
+    transalteAnimation.duration = 0.3f;
+    transalteAnimation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseOut];
+    transalteAnimation.removedOnCompletion = NO;
+    transalteAnimation.fillMode = kCAFillModeForwards;
+    
+    // Delegate
+    FeBasicAnimationBlock *blockDelegate = [FeBasicAnimationBlock new];
+    transalteAnimation.delegate = blockDelegate;
+    
+    __weak typeof(self) weakSelf = self;
+    blockDelegate.blockDidStart = ^{
+        typeof(self) strongSelf = weakSelf;
+        
+        // Disable gesture
+        strongSelf.panGesture.enabled = NO;
+    };
+    blockDelegate.blockDidStop = ^{
+        typeof(self) strongSelf = weakSelf;
+        
+        // Enable
+        strongSelf.panGesture.enabled = YES;
+        
+        // remove
+        [strongSelf.maskLayer removeAllAnimations];
+        
+        // Set final
+        [strongSelf setPositionWithoutImplicitAnimationAtTransfrom:finalTransform];
+    };
+    
+    [_maskLayer addAnimation:transalteAnimation forKey:@"animation"];
+}
+-(void) setPositionWithoutImplicitAnimationAtTransfrom:(CATransform3D ) transform
+{
+    [CATransaction begin];
+    
+    // Disable
+    [CATransaction setDisableActions:YES];
+    
+    // Point
+    _maskLayer.transform = transform;
+    
+    [CATransaction commit];
 }
 -(void) configureCamera
 {
@@ -101,19 +195,24 @@
     if (!_maskLayer)
     {
         _maskLayer = [CAShapeLayer layer];
-        _maskLayer.frame = self.view.bounds;
+        _maskLayer.frame = CGRectMake(0, 0, self.view.bounds.size.width * 2, self.view.bounds.size.height);
         _maskLayer.backgroundColor = [UIColor clearColor].CGColor;
         
         // Bezier path
         UIBezierPath *triangle = [UIBezierPath bezierPath];
         [triangle moveToPoint:CGPointZero];
-        [triangle addLineToPoint:CGPointMake(self.view.bounds.size.width, self.view.bounds.size.height)];
+        [triangle addLineToPoint:CGPointMake(self.view.bounds.size.width, 0)];
+        [triangle addLineToPoint:CGPointMake(self.view.bounds.size.width * 2, self.view.bounds.size.height)];
         [triangle addLineToPoint:CGPointMake(0, self.view.bounds.size.height)];
         [triangle addLineToPoint:CGPointZero];
         
-        //
+        // Add to mask layer
         _maskLayer.path = triangle.CGPath;
         _maskLayer.fillColor = [UIColor whiteColor].CGColor;
+        
+        // Translate to center
+        _maskLayer.anchorPoint = CGPointZero;
+        _maskLayer.position = CGPointMake( - self.view.bounds.size.width * 2, 0);
         
         // Add
         _topCameraImageView.layer.mask = _maskLayer;
