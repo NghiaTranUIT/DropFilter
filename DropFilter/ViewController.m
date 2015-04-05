@@ -23,7 +23,7 @@
 @property (strong, nonatomic) GPUImageAmatorkaFilter *amatorkaFilter;
 
 // Mask
-@property (strong, nonatomic) CALayer *maskLayer;
+@property (strong, nonatomic) CAShapeLayer *maskLayer;
 
 @end
 
@@ -100,15 +100,24 @@
 {
     if (!_maskLayer)
     {
-        _maskLayer = [CALayer layer];
-        _maskLayer.frame = CGRectMake(0, 0, self.view.bounds.size.width / 2, self.view.bounds.size.height);
-        _maskLayer.backgroundColor = [UIColor whiteColor].CGColor;
+        _maskLayer = [CAShapeLayer layer];
+        _maskLayer.frame = self.view.bounds;
+        _maskLayer.backgroundColor = [UIColor clearColor].CGColor;
+        
+        // Bezier path
+        UIBezierPath *triangle = [UIBezierPath bezierPath];
+        [triangle moveToPoint:CGPointZero];
+        [triangle addLineToPoint:CGPointMake(self.view.bounds.size.width, self.view.bounds.size.height)];
+        [triangle addLineToPoint:CGPointMake(0, self.view.bounds.size.height)];
+        [triangle addLineToPoint:CGPointZero];
+        
+        //
+        _maskLayer.path = triangle.CGPath;
+        _maskLayer.fillColor = [UIColor whiteColor].CGColor;
         
         // Add
         _topCameraImageView.layer.mask = _maskLayer;
         _topCameraImageView.layer.masksToBounds = YES;
     }
-    
-
 }
 @end
