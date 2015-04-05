@@ -232,7 +232,6 @@
     }
     else
     {
-        CGFloat width = self.view.bounds.size.width;
         CGFloat height = self.view.bounds.size.height;
         
         CGFloat DB =  transform.m41;
