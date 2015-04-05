@@ -95,6 +95,8 @@
         case UIGestureRecognizerStateBegan:
         case UIGestureRecognizerStateChanged:
         {
+            // Translate maskLayer
+            // We should disable Implecit Animation when assign directly to property of layer
             [self setPositionWithoutImplicitAnimationAtTransfrom:CATransform3DMakeTranslation(location.x * 2, 0, 0)];
             
             break;
@@ -104,12 +106,16 @@
         case UIGestureRecognizerStateEnded:
         {
             CATransform3D transfrom = _maskLayer.transform;
+            
+            // m41 is x corrdinatation
             if (transfrom.m41 > self.view.bounds.size.width)
             {
+                // Animate masklayer to right edge
                 [self animationMaskLayerToTransform:CATransform3DMakeTranslation(self.view.bounds.size.width * 2, 0, 0)];
             }
             else
             {
+                // Animate masklayer to left edge
                 [self animationMaskLayerToTransform:CATransform3DMakeTranslation( 0, 0, 0)];
             }
             break;
