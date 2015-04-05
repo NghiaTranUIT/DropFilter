@@ -194,16 +194,19 @@
 {
     if (!_maskLayer)
     {
+        CGFloat width = self.view.bounds.size.width;
+        CGFloat height = self.view.bounds.size.height;
+        
         _maskLayer = [CAShapeLayer layer];
-        _maskLayer.frame = CGRectMake(0, 0, self.view.bounds.size.width * 2, self.view.bounds.size.height);
+        _maskLayer.frame = CGRectMake(0, 0, width * 2, height);
         _maskLayer.backgroundColor = [UIColor clearColor].CGColor;
         
         // Bezier path
         UIBezierPath *triangle = [UIBezierPath bezierPath];
         [triangle moveToPoint:CGPointZero];
-        [triangle addLineToPoint:CGPointMake(self.view.bounds.size.width, 0)];
-        [triangle addLineToPoint:CGPointMake(self.view.bounds.size.width * 2, self.view.bounds.size.height)];
-        [triangle addLineToPoint:CGPointMake(0, self.view.bounds.size.height)];
+        [triangle addLineToPoint:CGPointMake(width, 0)];
+        [triangle addLineToPoint:CGPointMake(width * 2, height)];
+        [triangle addLineToPoint:CGPointMake(0, height)];
         [triangle addLineToPoint:CGPointZero];
         
         // Add to mask layer
@@ -212,7 +215,7 @@
         
         // Translate to center
         _maskLayer.anchorPoint = CGPointZero;
-        _maskLayer.position = CGPointMake( - self.view.bounds.size.width * 2, 0);
+        _maskLayer.position = CGPointMake( - width * 2, 0);
         
         // Add
         _topCameraImageView.layer.mask = _maskLayer;
